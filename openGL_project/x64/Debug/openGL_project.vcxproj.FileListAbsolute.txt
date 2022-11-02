@@ -1,0 +1,2 @@
+D:\FileCatalogue\VS2022\openGL_project\x64\Debug\openGL_project.exe
+D:\visual studio\cpp-project\OpenGL-animation_TJU-Final-assignment-main (2)\OpenGL-animation_TJU-Final-assignment-main\openGL_project\x64\Debug\openGL_project.exe
