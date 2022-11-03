@@ -26,7 +26,7 @@ const unsigned int SCR_WIDTH = 1200;
 const unsigned int SCR_HEIGHT = 900;
 
 // camera
-Camera camera(glm::vec3(-20.0f, 0.0f, -5.0f));
+Camera camera(glm::vec3(-20.0f, 0.0f, 5.0f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -179,12 +179,12 @@ int main()
 		 1.0f, -1.0f,  1.0f
 	};
 
-	Model ourModel("resources/turtle/uploads_files_2184392_Turtle_OBJ.obj");
-	Model horse1Model("resources/rabbit/uploads_files_991253_Rabbit.obj");
+	Model man3Model("resources/gate/uploads_files_3661170_gate.obj");
+	Model horse1Model("resources/turtle/uploads_files_2184392_Turtle_OBJ.obj");
+	Model ourModel("resources/rabbit/uploads_files_991253_Rabbit.obj");
 	Model grassGroundModel("resources/grass/10450_Rectangular_Grass_Patch_v1_iterations-2.obj");
-	Model man1Model("resources/turtle/uploads_files_2184392_Turtle_OBJ.obj");
-	Model man2Model("resources/rabbit/uploads_files_991253_Rabbit.obj");
-	Model man3Model("resources/turtle/uploads_files_2184392_Turtle_OBJ.obj");
+
+
 
 	// cube VAO
 	unsigned int cubeVAO, cubeVBO;
@@ -247,7 +247,8 @@ int main()
 	float lasty = p1.y;
 	float lastz = p1.z;
 
-	glm::vec3 lightPosition = glm::vec3(1.0f, 15.0f, 15.0);
+	glm::vec3 lightPosition = glm::vec3(0.0f, 20.0f, 20.0f);
+	glm::vec3 lightforgate = glm::vec3(0.0f, 2.0f, 50.0f);
 	float tFrame = 0.0f;
 
 	while (!glfwWindowShouldClose(window))
@@ -292,12 +293,7 @@ int main()
 		//glm::vec3 posi = (1 - tFrame) * (1 - tFrame) * p1 + 2 * (tFrame) * (1 - tFrame) * p2 + tFrame * tFrame * p3;
 		//glm::vec3 deltaPosi = posi - lastPosi;
 		//lastPosi = posi;
-		float posix = pow((1 - finaltime), 4) * p1.x + 4 * pow((1 - finaltime), 3) * finaltime * p2.x + 6 * pow((finaltime), 2) * pow((1 - finaltime), 2) * p3.x + 4 * pow((finaltime), 3) * (1 - finaltime) * p4.x + pow((finaltime), 4) * p5.x;
-		float posiy = pow((1 - finaltime), 4) * p1.y + 4 * pow((1 - finaltime), 3) * finaltime * p2.y + 6 * pow((finaltime), 2) * pow((1 - finaltime), 2) * p3.y + 4 * pow((finaltime), 3) * (1 - finaltime) * p4.y + pow((finaltime), 4) * p5.y;
-		float posiz = pow((1 - finaltime), 4) * p1.z + 4 * pow((1 - finaltime), 3) * finaltime * p2.z + 6 * pow((finaltime), 2) * pow((1 - finaltime), 2) * p3.z + 4 * pow((finaltime), 3) * (1 - finaltime) * p4.z + pow((finaltime), 4) * p5.z;
-		float deltax = posix - lastx;
-		float deltay = posiy - lasty;
-		float deltaz = posiz - lastz;
+
 		shader.use();
 		glm::mat4 model = glm::mat4(1.0f);
 		// model = glm::translate(model, deltaPosi);
@@ -316,121 +312,15 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
-		man1Shader.use();
-		glm::mat4 man1model = glm::mat4(1.0f);
-		glm::mat4 man1view = camera.GetViewMatrix();
-		glm::mat4 man1projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		man1model = glm::translate(man1model, glm::vec3(-2.0f, -1.5f, -10.0f)); // translate it down so it's at the center of the scene
-		//man1model = glm::rotate(man1model, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		man1model = glm::scale(man1model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		man1Shader.setMat4("view", man1view);
-		man1Shader.setMat4("projection", man1projection);
-		man1Shader.setVec3("lightPosition", lightPosition);
-		man1Shader.setVec3("viewPos", camera.Position);
-		man1Shader.setMat4("model", man1model);
-		man1Model.Draw(man1Shader);
-
-		man2Shader.use();
-		glm::mat4 man2model = glm::mat4(1.0f);
-		glm::mat4 man2view = camera.GetViewMatrix();
-		glm::mat4 man2projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		if (tFrame > 16.0f && tFrame < 18.0f) {
-			man2model = glm::translate(man2model, glm::vec3(0.0f, -3.5f, -10.0f)); // translate it down so it's at the center of the scene
-			man2model = glm::scale(man2model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		}
-		else if (tFrame > 24.0f && tFrame < 26.0f) {
-			man2model = glm::translate(man2model, glm::vec3(0.0f, 3.5f, -10.0f)); // translate it down so it's at the center of the scene
-			man2model = glm::scale(man2model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		}
-		else if (tFrame > 32.0f && tFrame < 34.0f) {
-			man2model = glm::translate(man2model, glm::vec3(0.0f, 3.5f, -10.0f)); // translate it down so it's at the center of the scene
-			man2model = glm::scale(man2model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		}
-		else {
-			man2model = glm::translate(man2model, glm::vec3(0.0f, -0.5f, -10.0f)); // translate it down so it's at the center of the scene
-			man2model = glm::scale(man2model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		}
-
-		man2Shader.setMat4("view", man2view);
-		man2Shader.setMat4("projection", man2projection);
-		man2Shader.setVec3("lightPosition", lightPosition);
-		man2Shader.setVec3("viewPos", camera.Position);
-		man2Shader.setMat4("model", man2model);
-		man2Model.Draw(man2Shader);
-
-		man3Shader.use();
-		glm::mat4 man3model = glm::mat4(1.0f);
-		glm::mat4 man3view = camera.GetViewMatrix();
-		glm::mat4 man3projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		if (tFrame > 16.0f && tFrame < 18.0f) {
-			man3model = glm::translate(man3model, glm::vec3(3.0f, 3.3f, -10.0f)); // translate it down so it's at the center of the scene
-			man3model = glm::scale(man3model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		}
-		else if (tFrame > 24.0f && tFrame < 26.0f) {
-			man3model = glm::translate(man3model, glm::vec3(3.0f, -1.3f, -10.0f)); // translate it down so it's at the center of the scene
-			man3model = glm::scale(man3model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		}
-		else if (tFrame > 32.0f && tFrame < 34.0f) {
-			man3model = glm::translate(man3model, glm::vec3(3.0f, -1.3f, -10.0f)); // translate it down so it's at the center of the scene
-			man3model = glm::scale(man3model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		}
-		else {
-			man3model = glm::translate(man3model, glm::vec3(3.0f, -0.3f, -10.0f)); // translate it down so it's at the center of the scene
-			man3model = glm::scale(man3model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		}
-
-		man3Shader.setMat4("view", man3view);
-		man3Shader.setMat4("projection", man3projection);
-		man3Shader.setVec3("lightPosition", lightPosition);
-		man3Shader.setVec3("viewPos", camera.Position);
-		man3Shader.setMat4("model", man3model);
-		man3Model.Draw(man3Shader);
-
+		
 		ourShader.use();
 		glm::mat4 modelk = glm::mat4(1.0f);
 		//float ABlength = sqrt(deltax * deltax + deltaz * deltaz);
-		float angle = finaltime * 2 * PI;
 		glm::mat4 ourview = camera.GetViewMatrix();
 		glm::mat4 ourprojection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		modelk = glm::translate(modelk, glm::vec3(0, -2.0, -2.0 + tFrame));
+		modelk = glm::translate(modelk, glm::vec3(1.0, -2.0, -2.0 ));
 		modelk = glm::scale(modelk, glm::vec3(0.03f, 0.03f, 0.03f));
-		//modelk = glm::rotate(modelk, (angle), glm::vec3(0.0f, 1.0f, 0.0f));
-		//if (tFrame < 16.0f) {
-		//    modelk = glm::translate(modelk, glm::vec3(0.0f, -2.4f, 0.0f)); // translate it down so it's at the center of the scene
-		//    modelk = glm::rotate(modelk, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//    modelk = glm::scale(modelk, glm::vec3(0.3f, 0.3f, 0.3f));	// it's a bit too big for our scene, so scale it down
-		//}
-		//else if (tFrame < 24.0f) {
-		//    modelk = glm::translate(modelk, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-		//    modelk = glm::rotate(modelk, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//    modelk = glm::scale(modelk, glm::vec3(0.6f, 0.6f, 0.6f));	// it's a bit too big for our scene, so scale it down
-		//}
-		//else if (tFrame < 32.0f) {
-		//    modelk = glm::translate(modelk, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-		//    modelk = glm::rotate(modelk, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//    modelk = glm::scale(modelk, glm::vec3(0.4f, 0.4f, 0.4f));	// it's a bit too big for our scene, so scale it down
-		//}
-		//else {
-		//    modelk = glm::translate(modelk, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-		//    modelk = glm::rotate(modelk, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//    modelk = glm::scale(modelk, glm::vec3(0.4f, 0.4f, 0.4f));	// it's a bit too big for our scene, so scale it down
-		//}
-		//if (tFrame > 16.0f && tFrame < 18.0f) {
-		//    man3model = glm::translate(man3model, glm::vec3(3.0f, 3.3f, -10.0f)); // translate it down so it's at the center of the scene
-		//    man3model = glm::scale(man3model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		//}
-		//else if (tFrame > 24.0f && tFrame < 26.0f) {
-		//    man3model = glm::translate(man3model, glm::vec3(3.0f, -1.3f, -10.0f)); // translate it down so it's at the center of the scene
-		//    man3model = glm::scale(man3model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		//}
-		//else if (tFrame > 32.0f && tFrame < 34.0f) {
-		//    man3model = glm::translate(man3model, glm::vec3(3.0f, -1.3f, -10.0f)); // translate it down so it's at the center of the scene
-		//    man3model = glm::scale(man3model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		//}
-		//else {
-		//    man3model = glm::translate(man3model, glm::vec3(3.0f, -0.3f, -10.0f)); // translate it down so it's at the center of the scene
-		//    man3model = glm::scale(man3model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		//}
+		
 		ourShader.setMat4("view", ourview);
 		ourShader.setMat4("projection", ourprojection);
 		ourShader.setVec3("lightPosition", lightPosition);
@@ -444,31 +334,11 @@ int main()
 		glm::mat4 horse1projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		float horse1angle = finaltime * 2 * PI;
 		if(tFrame<5)
-			horse1model = glm::translate(horse1model, glm::vec3(-5.0, -2.0, -2.0 + tFrame * 1.5));
+			horse1model = glm::translate(horse1model, glm::vec3(-3.0, -2.0, -2.0 ));
 		else 
-			horse1model = glm::translate(horse1model, glm::vec3(-5.0, -2.0, -2.0 + tFrame * 3));
+			horse1model = glm::translate(horse1model, glm::vec3(-3.0, -2.0, -2.0 ));
 		horse1model = glm::scale(horse1model, glm::vec3(0.03f, 0.03f, 0.03f));
-		//horse1model = glm::rotate(horse1model, (horse1angle), glm::vec3(0.0f, 1.0f, 0.0f));
-		//if (tFrame < 16.0f) {
-		//    horse1model = glm::translate(horse1model, glm::vec3(0.0f, -0.4f, 10.0f)); // translate it down so it's at the center of the scene
-		//    horse1model = glm::rotate(horse1model, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//    horse1model = glm::scale(horse1model, glm::vec3(0.09f, 0.09f, 0.09f));	// it's a bit too big for our scene, so scale it down
-		//}
-		//else if (tFrame < 24.0f) {
-		//    horse1model = glm::translate(horse1model, glm::vec3(0.0f, -2.4f, 10.0f)); // translate it down so it's at the center of the scene
-		//    horse1model = glm::rotate(horse1model, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//    horse1model = glm::scale(horse1model, glm::vec3(0.08f, 0.08f, 0.08f));	// it's a bit too big for our scene, so scale it down
-		//}
-		//else if (tFrame < 32.0f) {
-		//    horse1model = glm::translate(horse1model, glm::vec3(0.0f, -2.4f, 10.0f)); // translate it down so it's at the center of the scene
-		//    horse1model = glm::rotate(horse1model, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//    horse1model = glm::scale(horse1model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		//}
-		//else {
-		//    horse1model = glm::translate(horse1model, glm::vec3(0.0f, -2.4f, 10.0f)); // translate it down so it's at the center of the scene
-		//    horse1model = glm::rotate(horse1model, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//    horse1model = glm::scale(horse1model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-		//}
+		
 		horse1Shader.setMat4("view", horse1view);
 		horse1Shader.setMat4("projection", horse1projection);
 		horse1Shader.setVec3("lightPosition", lightPosition);
@@ -476,6 +346,21 @@ int main()
 		horse1Shader.setMat4("model", horse1model);
 		horse1Model.Draw(horse1Shader);
 
+		man3Shader.use();
+		glm::mat4 man3model = glm::mat4(1.0f);
+		glm::mat4 man3view = camera.GetViewMatrix();
+		glm::mat4 man3projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
+		man3model = glm::translate(man3model, glm::vec3(0.0f, -2.0f, 35.0f)); // translate it down so it's at the center of the scene
+		man3model = glm::scale(man3model, glm::vec3(2.5f, 1.0f, 1.0f));
+		man3model = glm::rotate(man3model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		man3Shader.setMat4("view", man3view);
+		man3Shader.setMat4("projection", man3projection);
+		man3Shader.setVec3("lightPosition", lightforgate);
+		man3Shader.setVec3("viewPos", camera.Position);
+		man3Shader.setMat4("model", man3model);
+		
+		man3Model.Draw(man3Shader); 
 
 		grassShader.use();
 		glm::mat4 grassview = camera.GetViewMatrix();
