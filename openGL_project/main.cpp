@@ -1,4 +1,3 @@
-
 #include "stb_image.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -13,7 +12,6 @@
 #include <iostream>
 #include <math.h>
 
-#define PI 3.1415926
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -35,11 +33,42 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+float pts[10][2] = { {-2,-0.0735878},{3,-0.539789},{8,-0.154111},{13,0.39687},{18,0.137219},{23,0.36858},{28,-0.40811},{33,-0.434616},{38,-0.122662},{43,-0.305223} };
+int len = 10;
+int fact(int n)//阶乘函数
+{
+	if (n == 0)
+	{
+		return 1;
+	}
+	else
+	{
+		int res = 1;
+		for (int i = n; i > 0; i--)
+		{
+			res *= i;
+		}
+		return res;
+	}
+}
+
+float bezier(float t)
+{
+	int n = len - 1;
+	float Bt = 0;
+	float Xt = 0;
+	float Yt = 0;
+	for (int i = 0; i <= n; i++)
+	{
+		Bt = fact(n) / (fact(n - i) * fact(i)) * pow((1 - t), (n - i)) * pow(t, i); //计算伯恩斯坦基底
+		Xt += Bt * (pts[i][0]);
+		Yt += Bt * (pts[i][1]);
+	}
+	return Yt;
+}
 int main()
 {
-	// glfw: initialize and configure
-	// ------------------------------
-	glfwInit();
+	glfwInit();	// glfw: initialize and configure
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -48,9 +77,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	// glfw window creation
-	// --------------------
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "The Tortoise and the Hare", NULL, NULL);	// glfw window creation
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -62,34 +89,25 @@ int main()
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
-	// tell GLFW to capture our mouse
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);	// tell GLFW to capture our mouse
 
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))	// glad: load all OpenGL function pointers
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
 
-	// configure global opengl state
-	// -----------------------------
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);	// configure global opengl state
 
 	// build and compile shaders
-	// -------------------------
 	Shader grassShader("resources/shader/grassGround.vs", "resources/shader/grassGround.fs");
-	Shader ourShader("resources/shader/1.model_loading.vs", "resources/shader/1.model_loading.fs");
+	Shader hareShader("resources/shader/hare.vs", "resources/shader/hare.fs");
 	Shader shader("resources/shader/6.1.cubemaps.vs", "resources/shader/6.1.cubemaps.fs");
 	Shader skyboxShader("resources/shader/skyboxShader.vs", "resources/shader/skyboxShader.fs");
-	Shader horse1Shader("resources/shader/horse1.vs", "resources/shader/horse1.fs");
-	Shader man1Shader("resources/shader/man1.vs", "resources/shader/man1.fs");
-	Shader man2Shader("resources/shader/man2.vs", "resources/shader/man2.fs");
-	Shader man3Shader("resources/shader/man3.vs", "resources/shader/man3.fs");
+	Shader tortoiseShader("resources/shader/tortoise.vs", "resources/shader/tortoise.fs");
+	Shader gateShader("resources/shader/gate.vs", "resources/shader/gate.fs");
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
-	// ------------------------------------------------------------------
 	float cubeVertices[] = {
 		// positions          // texture Coords
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -179,12 +197,10 @@ int main()
 		 1.0f, -1.0f,  1.0f
 	};
 
-	Model man3Model("resources/gate/uploads_files_3661170_gate.obj");
-	Model horse1Model("resources/turtle/uploads_files_2184392_Turtle_OBJ.obj");
-	Model ourModel("resources/rabbit/uploads_files_991253_Rabbit.obj");
+	Model gateModel("resources/gate/uploads_files_3661170_gate.obj");
+	Model tortoiseModel("resources/turtle/uploads_files_2184392_Turtle_OBJ.obj");
+	Model hareModel("resources/rabbit/uploads_files_991253_Rabbit.obj");
 	Model grassGroundModel("resources/grass/10450_Rectangular_Grass_Patch_v1_iterations-2.obj");
-
-
 
 	// cube VAO
 	unsigned int cubeVAO, cubeVBO;
@@ -208,8 +224,7 @@ int main()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-	// load textures
-	// -------------
+	// load cube textures
 	unsigned int cubeTexture = loadTexture("resources/textures/texture.jpeg");
 
 	vector<std::string> faces
@@ -224,28 +239,10 @@ int main()
 	unsigned int cubemapTexture = loadCubemap(faces);
 
 	// shader configuration
-	// --------------------
 	shader.use();
 	shader.setInt("texture1", 0);
-
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
-
-
-	glm::vec3 p1 = glm::vec3(-40.0f, 0.0f, -40.0f);
-	glm::vec3 p2 = glm::vec3(-40.0f, 0.0f, 40.0f);
-	glm::vec3 p3 = glm::vec3(40.0f, 0.0f, 40.0f);
-	glm::vec3 p4 = glm::vec3(40.0f, 0.0f, -40.0f);
-	glm::vec3 p5 = glm::vec3(-40.0f, 0.0f, -40.0f);
-	// render loop
-	// -----------
-	float finaltime = 0.0f;
-	float firstTime = 0.0f;
-	float stopTime = 8.0f;//八秒一圈
-	//glm::vec3 lastPosi = p1;
-	float lastx = p1.x;
-	float lasty = p1.y;
-	float lastz = p1.z;
 
 	glm::vec3 lightPosition = glm::vec3(0.0f, 20.0f, 20.0f);
 	glm::vec3 lightforgate = glm::vec3(0.0f, 2.0f, 50.0f);
@@ -254,50 +251,19 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// per-frame time logic
-		// --------------------
 		float currentFrame = glfwGetTime();//返回时间
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 		tFrame = tFrame + deltaTime;//tFrame就是时间，一直增长
 
-		// input
-		// -----
 		processInput(window);
 
 		// render
-		// ------
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-		//transform = glm::translate(transform, glm::vec3(0.9f, -0.9f, 0.9f));
-		//transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		// get matrix's uniform location and set matrix
-
-		// draw scene as normal
-
-
-
-
-
-		//horse1Shader.use();
-
-		firstTime += deltaTime;
-		if (firstTime > stopTime) {
-			firstTime = firstTime - stopTime;
-		}
-		finaltime = firstTime / stopTime;
-
-
-		//glm::vec3 posi = (1 - tFrame) * (1 - tFrame) * p1 + 2 * (tFrame) * (1 - tFrame) * p2 + tFrame * tFrame * p3;
-		//glm::vec3 deltaPosi = posi - lastPosi;
-		//lastPosi = posi;
-
 		shader.use();
 		glm::mat4 model = glm::mat4(1.0f);
-		// model = glm::translate(model, deltaPosi);
-		// model = glm::translate(model, glm::vec3(deltax, deltay, deltaz));
 		model = glm::translate(model, glm::vec3(5.0f, -0.5f, 0.5f));
 		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 view = camera.GetViewMatrix();
@@ -312,55 +278,60 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
-		
-		ourShader.use();
-		glm::mat4 modelk = glm::mat4(1.0f);
-		//float ABlength = sqrt(deltax * deltax + deltaz * deltaz);
+
+		hareShader.use();
+		glm::mat4 hareMatrix = glm::mat4(1.0f);
 		glm::mat4 ourview = camera.GetViewMatrix();
 		glm::mat4 ourprojection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		modelk = glm::translate(modelk, glm::vec3(1.0, -2.0, -2.0 ));
-		modelk = glm::scale(modelk, glm::vec3(0.03f, 0.03f, 0.03f));
-		
-		ourShader.setMat4("view", ourview);
-		ourShader.setMat4("projection", ourprojection);
-		ourShader.setVec3("lightPosition", lightPosition);
-		ourShader.setVec3("viewPos", camera.Position);
-		ourShader.setMat4("model", modelk);
-		ourModel.Draw(ourShader);
 
-		horse1Shader.use();
-		glm::mat4 horse1model = glm::mat4(1.0f);
-		glm::mat4 horse1view = camera.GetViewMatrix();
-		glm::mat4 horse1projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		float horse1angle = finaltime * 2 * PI;
-		if(tFrame<5)
-			horse1model = glm::translate(horse1model, glm::vec3(-3.0, -2.0, -2.0 ));
-		else 
-			horse1model = glm::translate(horse1model, glm::vec3(-3.0, -2.0, -2.0 ));
-		horse1model = glm::scale(horse1model, glm::vec3(0.03f, 0.03f, 0.03f));
-		
-		horse1Shader.setMat4("view", horse1view);
-		horse1Shader.setMat4("projection", horse1projection);
-		horse1Shader.setVec3("lightPosition", lightPosition);
-		horse1Shader.setVec3("viewPos", camera.Position);
-		horse1Shader.setMat4("model", horse1model);
-		horse1Model.Draw(horse1Shader);
+		if (tFrame < 8)
+			hareMatrix = glm::translate(hareMatrix, glm::vec3(1.0, -2.0, -2.0 + 2.5 * tFrame));
+		else if (tFrame > 8 && tFrame < 35)
+			hareMatrix = glm::translate(hareMatrix, glm::vec3(1.0, -2.0, 18.0));
+		else if (tFrame > 35 && tFrame < 43)
+			hareMatrix = glm::translate(hareMatrix, glm::vec3(1.0, -2.0, 18.0 + 2.5 * (tFrame - 35)));
+		else
+			hareMatrix = glm::translate(hareMatrix, glm::vec3(1.0, -2.0, 38.0));
+		hareMatrix = glm::scale(hareMatrix, glm::vec3(0.03f, 0.03f, 0.03f));
+		hareShader.setMat4("view", ourview);
+		hareShader.setMat4("projection", ourprojection);
+		hareShader.setVec3("lightPosition", lightPosition);
+		hareShader.setVec3("viewPos", camera.Position);
+		hareShader.setMat4("model", hareMatrix);
+		hareModel.Draw(hareShader);
 
-		man3Shader.use();
-		glm::mat4 man3model = glm::mat4(1.0f);
-		glm::mat4 man3view = camera.GetViewMatrix();
-		glm::mat4 man3projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		tortoiseShader.use();
+		glm::mat4 tortoiseMatrix = glm::mat4(1.0f);
+		glm::mat4 tortoiseView = camera.GetViewMatrix();
+		glm::mat4 tortoiseProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-		man3model = glm::translate(man3model, glm::vec3(0.0f, -2.0f, 35.0f)); // translate it down so it's at the center of the scene
-		man3model = glm::scale(man3model, glm::vec3(2.5f, 1.0f, 1.0f));
-		man3model = glm::rotate(man3model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		man3Shader.setMat4("view", man3view);
-		man3Shader.setMat4("projection", man3projection);
-		man3Shader.setVec3("lightPosition", lightforgate);
-		man3Shader.setVec3("viewPos", camera.Position);
-		man3Shader.setMat4("model", man3model);
-		
-		man3Model.Draw(man3Shader); 
+		if (tFrame < 40)
+			tortoiseMatrix = glm::translate(tortoiseMatrix, glm::vec3(-3.0, -2.0 + bezier(tFrame / 40), -2.0 + tFrame));
+		else tortoiseMatrix = glm::translate(tortoiseMatrix, glm::vec3(-3.0, -2.0, 38.0));
+		tortoiseMatrix = glm::scale(tortoiseMatrix, glm::vec3(0.03f, 0.03f, 0.03f));
+
+		tortoiseShader.setMat4("view", tortoiseView);
+		tortoiseShader.setMat4("projection", tortoiseProjection);
+		tortoiseShader.setVec3("lightPosition", lightPosition);
+		tortoiseShader.setVec3("viewPos", camera.Position);
+		tortoiseShader.setMat4("model", tortoiseMatrix);
+		tortoiseModel.Draw(tortoiseShader);
+
+		gateShader.use();
+		glm::mat4 gateMatrix = glm::mat4(1.0f);
+		glm::mat4 gateView = camera.GetViewMatrix();
+		glm::mat4 gateProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
+		gateMatrix = glm::translate(gateMatrix, glm::vec3(0.0f, -2.0f, 35.0f)); // translate it down so it's at the center of the scene
+		gateMatrix = glm::scale(gateMatrix, glm::vec3(2.5f, 1.0f, 1.0f));
+		gateMatrix = glm::rotate(gateMatrix, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		gateShader.setMat4("view", gateView);
+		gateShader.setMat4("projection", gateProjection);
+		gateShader.setVec3("lightPosition", lightforgate);
+		gateShader.setVec3("viewPos", camera.Position);
+		gateShader.setMat4("model", gateMatrix);
+
+		gateModel.Draw(gateShader);
 
 		grassShader.use();
 		glm::mat4 grassview = camera.GetViewMatrix();
@@ -368,13 +339,11 @@ int main()
 		glm::mat4 grassmodel = glm::mat4(1.0f);
 		grassmodel = glm::translate(grassmodel, glm::vec3(0.0f, -10.0f, 0.0f));
 		grassmodel = glm::rotate(grassmodel, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//grassmodel = glm::rotate(grassmodel, glm::vec3(0.0f, 0.0f, 1.0f));
-		//grassmodel = glm::translate(grassmodel, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-		//grassmodel = glm::scale(grassmodel, glm::vec3(4.0f, 4.0f, 4.0f));	// it's a bit too big for our scene, so scale it down
 		grassShader.setMat4("model", grassmodel);
 		grassShader.setMat4("view", grassview);
 		grassShader.setMat4("projection", grassprojection);
 		grassGroundModel.Draw(grassShader);
+
 		// draw skybox as last
 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 		skyboxShader.use();
@@ -390,13 +359,11 @@ int main()
 		glDepthFunc(GL_LESS); // set depth function back to default
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
 	// optional: de-allocate all resources once they've outlived their purpose:
-	// ------------------------------------------------------------------------
 	glDeleteVertexArrays(1, &cubeVAO);
 	glDeleteVertexArrays(1, &skyboxVAO);
 	glDeleteBuffers(1, &cubeVBO);
@@ -407,7 +374,6 @@ int main()
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -424,7 +390,6 @@ void processInput(GLFWwindow* window)
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	// make sure the viewport matches the new window dimensions; note that width and 
@@ -433,7 +398,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 // glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse)
@@ -453,14 +417,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.ProcessMouseScroll(yoffset);
 }
 
 // utility function for loading a 2D texture from file
-// ---------------------------------------------------
 unsigned int loadTexture(char const* path)
 {
 	unsigned int textureID;
@@ -499,14 +461,7 @@ unsigned int loadTexture(char const* path)
 }
 
 // loads a cubemap texture from 6 individual texture faces
-// order:
-// +X (right)
-// -X (left)
-// +Y (top)
-// -Y (bottom)
-// +Z (front) 
-// -Z (back)
-// -------------------------------------------------------
+// order: +X (right) -X (left) +Y (top) -Y (bottom) +Z (front)  -Z (back)
 unsigned int loadCubemap(vector<std::string> faces)
 {
 	unsigned int textureID;

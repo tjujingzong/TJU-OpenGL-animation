@@ -151,18 +151,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assimp-vc143-mtd.dll" />
-    <None Include="resources\shader\1.model_loading.fs" />
-    <None Include="resources\shader\1.model_loading.vs" />
+    <None Include="resources\shader\hare.fs" />
+    <None Include="resources\shader\hare.vs" />
     <None Include="resources\shader\grassGround.fs" />
     <None Include="resources\shader\grassGround.vs" />
-    <None Include="resources\shader\horse1.fs" />
-    <None Include="resources\shader\horse1.vs" />
-    <None Include="resources\shader\man1.fs" />
-    <None Include="resources\shader\man1.vs" />
-    <None Include="resources\shader\man2.fs" />
-    <None Include="resources\shader\man2.vs" />
-    <None Include="resources\shader\man3.fs" />
-    <None Include="resources\shader\man3.vs" />
+    <None Include="resources\shader\tortoise.fs" />
+    <None Include="resources\shader\tortoise.vs" />
+    <None Include="resources\shader\gate.fs" />
+    <None Include="resources\shader\gate.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stb_image.h" />
