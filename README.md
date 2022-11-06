@@ -3,9 +3,9 @@ OpenGL-animation 文件结构
 
 ├─openGLEnvir //项目环境
 
-│  ├─Include
+│  ├─Include // 头文件
 
-│  └─Labs
+│  └─Labs //静态数据连接库
 
 └─openGL_project
 
