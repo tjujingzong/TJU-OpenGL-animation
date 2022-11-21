@@ -29,6 +29,6 @@ OpenGL-animation 文件结构
 
 #### **运行效果**
 
-![](./pic/pic1.png)
+![](./pic/pic3.png)
 
-![](./pic/pic2.png)
+![](./pic/pic4.png)

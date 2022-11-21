@@ -151,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assimp-vc143-mtd.dll" />
+    <None Include="ClassDiagram.cd" />
     <None Include="resources\shader\hare.fs" />
     <None Include="resources\shader\hare.vs" />
     <None Include="resources\shader\grassGround.fs" />
@@ -159,6 +160,8 @@
     <None Include="resources\shader\tortoise.vs" />
     <None Include="resources\shader\gate.fs" />
     <None Include="resources\shader\gate.vs" />
+    <None Include="resources\shader\trophy.fs" />
+    <None Include="resources\shader\trophy.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stb_image.h" />

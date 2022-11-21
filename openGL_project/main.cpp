@@ -106,7 +106,7 @@ int main()
 	Shader skyboxShader("resources/shader/skyboxShader.vs", "resources/shader/skyboxShader.fs");
 	Shader tortoiseShader("resources/shader/tortoise.vs", "resources/shader/tortoise.fs");
 	Shader gateShader("resources/shader/gate.vs", "resources/shader/gate.fs");
-
+	Shader trophyShader("resources/shader/trophy.vs", "resources/shader/trophy.fs");
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	float cubeVertices[] = {
 		// positions          // texture Coords
@@ -201,7 +201,7 @@ int main()
 	Model tortoiseModel("resources/turtle/uploads_files_2184392_Turtle_OBJ.obj");
 	Model hareModel("resources/rabbit/uploads_files_991253_Rabbit.obj");
 	Model grassGroundModel("resources/grass/10450_Rectangular_Grass_Patch_v1_iterations-2.obj");
-
+	Model trophyModel("resources/trophy/uploads_files_863594_Trophy.obj");
 	// cube VAO
 	unsigned int cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
@@ -246,7 +246,7 @@ int main()
 
 	glm::vec3 lightPosition = glm::vec3(0.0f, 20.0f, 20.0f);
 	glm::vec3 lightforgate = glm::vec3(0.0f, 2.0f, 50.0f);
-	float tFrame = 0.0f;
+	float time = 0.0f;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -254,7 +254,7 @@ int main()
 		float currentFrame = glfwGetTime();//返回时间
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		tFrame = tFrame + deltaTime;//tFrame就是时间，一直增长
+		time = time + deltaTime;//tFrame就是时间，一直增长
 
 		processInput(window);
 
@@ -278,18 +278,30 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
+		trophyShader.use();
+		glm::mat4 trophyMatrix = glm::mat4(1.0f);
+		glm::mat4 trophyview = camera.GetViewMatrix();
+		glm::mat4 trophyprojection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		trophyMatrix = glm::translate(trophyMatrix, glm::vec3(-3.0, -2.0, 40.0));
+		trophyMatrix = glm::scale(trophyMatrix, glm::vec3(4.0f, 4.0f, 4.0f));
+		trophyShader.setMat4("view", trophyview);
+		trophyShader.setMat4("projection", trophyprojection);
+		trophyShader.setVec3("lightPosition", lightPosition);
+		trophyShader.setVec3("viewPos", camera.Position);
+		trophyShader.setMat4("model", trophyMatrix);
+		trophyModel.Draw(trophyShader);
 
 		hareShader.use();
 		glm::mat4 hareMatrix = glm::mat4(1.0f);
 		glm::mat4 ourview = camera.GetViewMatrix();
 		glm::mat4 ourprojection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-		if (tFrame < 8)
-			hareMatrix = glm::translate(hareMatrix, glm::vec3(1.0, -2.0, -2.0 + 2.5 * tFrame));
-		else if (tFrame > 8 && tFrame < 35)
+		if (time < 8)
+			hareMatrix = glm::translate(hareMatrix, glm::vec3(1.0, -2.0, -2.0 + 2.5 * time));
+		else if (time > 8 && time < 35)
 			hareMatrix = glm::translate(hareMatrix, glm::vec3(1.0, -2.0, 18.0));
-		else if (tFrame > 35 && tFrame < 43)
-			hareMatrix = glm::translate(hareMatrix, glm::vec3(1.0, -2.0, 18.0 + 2.5 * (tFrame - 35)));
+		else if (time > 35 && time < 43)
+			hareMatrix = glm::translate(hareMatrix, glm::vec3(1.0, -2.0, 18.0 + 2.5 * (time - 35)));
 		else
 			hareMatrix = glm::translate(hareMatrix, glm::vec3(1.0, -2.0, 38.0));
 		hareMatrix = glm::scale(hareMatrix, glm::vec3(0.03f, 0.03f, 0.03f));
@@ -305,8 +317,9 @@ int main()
 		glm::mat4 tortoiseView = camera.GetViewMatrix();
 		glm::mat4 tortoiseProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-		if (tFrame < 40)
-			tortoiseMatrix = glm::translate(tortoiseMatrix, glm::vec3(-3.0, -2.0 + bezier(tFrame / 40), -2.0 + tFrame));
+		if (time < 40)
+			tortoiseMatrix = glm::translate(tortoiseMatrix, glm::vec3(-3.0, -2.0 + bezier(time / 40), -2.0 + time));
+		//模型沿z轴正方向运动，y轴方向为地形起伏
 		else tortoiseMatrix = glm::translate(tortoiseMatrix, glm::vec3(-3.0, -2.0, 38.0));
 		tortoiseMatrix = glm::scale(tortoiseMatrix, glm::vec3(0.03f, 0.03f, 0.03f));
 
